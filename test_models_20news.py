@@ -37,16 +37,16 @@ def run_20_news(model_id,percentage_supervision,nbits_for_hashing,alpha_val,gamm
 
     #Y = np.concatenate((np.zeros(10000),np.ones(10000),np.zeros(10000),np.ones(10000),np.zeros(len(X)-40000)))
 
-    X_train_input = X[:35000]
+    X_train_input = X[:50000]
     X_train = X_train_input 
-    X_val_input = X[35000:42000]
+    X_val_input = X[50000:60000]
     X_val = X_val_input 
-    X_test_input = X[42000:]
+    X_test_input = X[60000:70000]
     X_test = X_test_input
     #labels_train = np.asarray([labels[value.argmax(axis=-1)] for value in data["gnd_train"]])
-    labels_train = Y[:35000]
-    labels_val = Y[35000:42000]
-    labels_test = Y[42000:]
+    labels_train = Y[:50000]
+    labels_val = Y[50000:60000]
+    labels_test = Y[60000:70000]
 
     #Outputs as probabolities 
     X_train = X_train/X_train.sum(axis=-1,keepdims=True) 
@@ -173,7 +173,7 @@ def run_20_news(model_id,percentage_supervision,nbits_for_hashing,alpha_val,gamm
     del vae, X_total_input, X_total
     del X_train, X_val, X_test
     del total_hash, test_hash
-    del data
+    #del data
     gc.collect()
 
     print("DONE ...")
