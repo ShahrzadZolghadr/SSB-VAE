@@ -1,7 +1,9 @@
-import keras
-from keras.layers import *
-from keras.models import Sequential,Model
-from keras import backend as K
+%%writefile base_networks.py
+import tensorflow
+from tensorflow import keras
+from tensorflow.keras.layers import *
+from tensorflow.keras.models import Sequential,Model
+from tensorflow.keras import backend as K
 import numpy as np
 
 
@@ -18,10 +20,10 @@ def KL_loss(z_mean,z_log_var):
     return KL
 
 def KrossEntropy(y_true, y_pred):
-    return keras.losses.categorical_crossentropy(y_true, y_pred)
+    return tensorflow.keras.losses.categorical_crossentropy(y_true, y_pred)
 
 def mean_BKL_loss():
-    p_b = keras.activations.sigmoid(logits_b) #B_j = Q(b_j) probability of b_j
+    p_b = tensorflow.keras.activations.sigmoid(logits_b) #B_j = Q(b_j) probability of b_j
     Nb = K.int_shape(p_b)[1]
     ep = K.epsilon()
     def KL(y_true, y_pred):
@@ -29,14 +31,14 @@ def mean_BKL_loss():
     return KL
 
 def BKL_loss(logits_b):
-    p_b = keras.activations.sigmoid(logits_b) #B_j = Q(b_j) probability of b_j
+    p_b = tensorflow.keras.activations.sigmoid(logits_b) #B_j = Q(b_j) probability of b_j
     Nb = K.int_shape(p_b)[1]
     ep = K.epsilon()
     def KL(y_true, y_pred):
         return Nb*np.log(2) + K.sum( p_b*K.log(p_b + ep) + (1-p_b)* K.log(1-p_b +ep),axis=1)
     return KL
 
-class Beta_Call(keras.callbacks.Callback):   
+class Beta_Call(tensorflow.keras.callbacks.Callback):   
     def __init__(self, beta_ann, kl_inc= 1./5000, max_KL=0.1, verbose=0):
         #default parameters for text datasets..
         self.beta_ann = beta_ann

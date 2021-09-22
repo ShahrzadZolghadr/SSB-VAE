@@ -1,5 +1,6 @@
-from keras.layers import *
-from keras.models import Sequential
+%%writefile utils.py
+from tensorflow.keras.layers import *
+from tensorflow.keras.models import Sequential
 import numpy as np
 import pandas as pd
 from scipy import io as sio
@@ -159,10 +160,10 @@ def define_fit(multi_label,X,Y, epochs=20, dense_=True):
     #model_FF.add(Dense(128, activation="relu"))
     if multi_label:
         model_FF.add(Dense(Y.shape[1], activation="sigmoid"))
-        model_FF.compile(optimizer='adam', loss="binary_crossentropy")
+        model_FF.compile(optimizer='adam', loss="binary_crossentropy",experimental_run_tf_function=False)
     else:
         model_FF.add(Dense(Y.shape[1], activation="softmax"))
-        model_FF.compile(optimizer='adam', loss="categorical_crossentropy",metrics=["accuracy"])
+        model_FF.compile(optimizer='adam', loss="categorical_crossentropy",metrics=["accuracy"],experimental_run_tf_function=False)
     model_FF.fit(X, Y, epochs=epochs, batch_size=128, verbose=0)
     return model_FF
 
@@ -243,11 +244,17 @@ def get_similar(query, corpus,tipo="topK", K=100, ball=2):
         Retrieve similar documents to the query document inside the corpus (source)
     """
     #codify binary codes to fastest data type
-    query = query.astype('int8') #no voy a ocupar mas de 127 bits
-    corpus = corpus.astype('int8')
+    query = query[0].astype('int8') #no voy a ocupar mas de 127 bits
+    corpus = corpus[0].astype('int8')
     
     query_similares = [] #indices
     for dato_hash in query:
+        #print("dato_hash")
+        #print(dato_hash)
+        #print(dato_hash.shape)
+        #print("corpus")
+        #print(corpus)
+        #print(corpus.shape)
         hamming_distance = calculate_hamming_D(dato_hash, corpus) # # bits distintos)
         if tipo=="EM": #match exacto
             ball= 0
@@ -497,7 +504,7 @@ def sample_test_mask(labels_list, N=100, multi_label=True):
         mask_train[v] = False #test set
     return mask_train
 
-import keras
+from tensorflow import keras
 from IPython.display import display
 
 def evaluate_Top100(encoder,train,val,labels_train, labels_val, binary=True):
@@ -524,7 +531,7 @@ def find_beta(create_model, X_source_inp, X_source_out, X_query_input, labels_so
 
             #selected based on P@k=100
             p_value.append(evaluate_Top100(encoder_vae,X_source_inp,X_query_input,labels_source,labels_query,binary=binary))
-            keras.backend.clear_session()
+            tensorflow.keras.backend.clear_session()
             
         P_k100.append(np.mean(p_value))        
         gc.collect()
@@ -559,7 +566,7 @@ def find_lambda(create_model, X_source_inp, X_source_out, X_query_input, labels_
 
             #selected based on P@k=100
             p_value.append(evaluate_Top100(encoder_vae,X_source_inp,X_query_input,labels_source,labels_query,binary=binary))
-            keras.backend.clear_session()
+            tensorflow.keras.backend.clear_session()
             
         P_k100.append(np.mean(p_value))        
         gc.collect()
